@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/myself/code/learnBoost/asio/coroutine/build/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

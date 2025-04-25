@@ -1,1 +1,0 @@
-/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/asio_test_client.dir/link.d CMakeFiles/asio_test_client.dir/test_client.cpp.o -o asio_test_client  /usr/lib/libboost_system.so.1.87.0 -ljsoncpp

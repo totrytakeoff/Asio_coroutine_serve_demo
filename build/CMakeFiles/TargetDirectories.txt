@@ -1,4 +1,0 @@
-/home/myself/code/learnBoost/asio/coroutine/build/CMakeFiles/asio_coroutine_serve.dir
-/home/myself/code/learnBoost/asio/coroutine/build/CMakeFiles/asio_test_client.dir
-/home/myself/code/learnBoost/asio/coroutine/build/CMakeFiles/edit_cache.dir
-/home/myself/code/learnBoost/asio/coroutine/build/CMakeFiles/rebuild_cache.dir
