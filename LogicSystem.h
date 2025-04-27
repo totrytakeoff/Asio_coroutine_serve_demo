@@ -43,7 +43,7 @@ private:
     std::thread _worker_thread;
     std::condition_variable _msgQueCondVar;
 
-    std::map<short, FuncCallBack> _msgCallBackMap;
+    std::map< short, FuncCallBack> _msgCallBackMap;
     bool _is_running;
 
 };

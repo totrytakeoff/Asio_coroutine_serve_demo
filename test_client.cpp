@@ -22,7 +22,7 @@ int main()
 				//创建上下文服务
 				boost::asio::io_context   ioc;
 				//构造endpoint
-				tcp::endpoint  remote_ep(make_address("127.0.0.1"), 10086);
+				tcp::endpoint  remote_ep(make_address("127.0.0.1"), 12345);
 				tcp::socket  sock(ioc);
 				boost::system::error_code   error = boost::asio::error::host_not_found; ;
 				sock.connect(remote_ep, error);
@@ -33,10 +33,12 @@ int main()
 				int i = 0;
 				while (i<500) {
 					Json::Value root;
-					root["id"] = 1001;
-					root["data"] = "hello world";
+					
+					root['name']="Client";
+
 					std::string request = root.toStyledString();
 					size_t request_length = request.length();
+
 					char send_data[MAX_LENGTH] = { 0 };
 					int msgid = 1001;
 					int msgid_host = boost::asio::detail::socket_ops::host_to_network_short(msgid);
@@ -62,7 +64,8 @@ int main()
 					size_t  msg_length = boost::asio::read(sock, boost::asio::buffer(msg, msglen));
 					Json::Reader reader;
 					reader.parse(std::string(msg, msg_length), root);
-					std::cout << "msg id is " << root["id"] << " msg is " << root["data"] << endl;
+					std::string name = root["name"].asString();
+					std::cout << "HelloWorld!, I am " << name << "!" << std::endl;
 					i++;
 				}
 			}

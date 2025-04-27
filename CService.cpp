@@ -2,6 +2,8 @@
 #include <iostream>
 
 
+// 构造函数中初始化IOServicePool对象和端口号，然后创建一个接受连接的对象
+// 并调用StartAccept函数开始接受连接
 CService::CService(boost::asio::io_context& ioc, short port)
         : _ioc(ioc)
         , _port(port)
@@ -16,6 +18,7 @@ void CService::ClearSession(const std::string& sessionId) {
     _sessions.erase(sessionId);
 }
 
+// 启动接受连接
 void CService::StartAccept() {
     // 从IOServicePool中获取一 IOcontext,用于处理连接
     auto& ioc = IOServicePool::Instance().GetIOService();

@@ -4,6 +4,10 @@
 #include <json/writer.h>
 #include <iostream>
 #include "LogicSystem.h"
+
+// 严重程度：HIGH
+// 问题描述：消息投递没有大小限制，可能导致内存溢出
+// 优化建议：添加消息队列大小限制，实现消息丢弃策略
 void LogicSystem::PostMsgtToQue(std::shared_ptr<LogicNode> msg) {
     std::unique_lock<std::mutex> lock(_msgQueMutex);
 
@@ -16,6 +20,9 @@ void LogicSystem::PostMsgtToQue(std::shared_ptr<LogicNode> msg) {
     }
 }
 
+// 严重程度：MEDIUM
+// 问题描述：消息回调注册没有错误处理
+// 优化建议：添加重复注册检查和错误处理
 void LogicSystem::RegisterMsgCallBack() {
     _msgCallBackMap.insert(std::make_pair(
             MSG_HELLOWORLD,
@@ -23,7 +30,9 @@ void LogicSystem::RegisterMsgCallBack() {
                    const std::string& msg_data) { HelloWorld(self, msg_id, msg_data); }));
 }
 
-
+// 严重程度：CRITICAL
+// 问题描述：构造函数中直接启动线程，不符合RAII原则
+// 优化建议：使用二级构造模式，将线程启动逻辑移到单独的Start()方法中
 LogicSystem::LogicSystem() : _is_running(true) {
     // 注册消息回调函数
     RegisterMsgCallBack();
@@ -31,6 +40,9 @@ LogicSystem::LogicSystem() : _is_running(true) {
     _worker_thread = std::thread(&LogicSystem::DealMsg, this);
 }
 
+// 严重程度：CRITICAL
+// 问题描述：消息处理过程中持有锁，可能导致死锁
+// 优化建议：使用临时队列，减少锁的持有时间
 void LogicSystem::DealMsg() {
     while (_is_running) {
         std::unique_lock<std::mutex> lock(_msgQueMutex);
@@ -70,6 +82,9 @@ void LogicSystem::DealMsg() {
     }
 }
 
+// 严重程度：HIGH
+// 问题描述：JSON解析没有完善的错误处理
+// 优化建议：添加详细的错误检查和日志
 void LogicSystem::HelloWorld(std::shared_ptr<CSession> session, const short& msg_id,
                              const std::string& msg_data) {
     Json::Value jsonData;
@@ -89,8 +104,9 @@ void LogicSystem::HelloWorld(std::shared_ptr<CSession> session, const short& msg
 
 }
 
-
-
+// 严重程度：HIGH
+// 问题描述：析构函数可能无法正确清理所有资源
+// 优化建议：确保所有消息都被处理完，添加超时机制
 LogicSystem::~LogicSystem() {
     _is_running = false;
     _msgQueCondVar.notify_all();

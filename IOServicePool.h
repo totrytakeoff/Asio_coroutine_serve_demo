@@ -7,7 +7,7 @@
 #include <vector>
 #include <memory>
 #include <thread>
-
+#include <atomic>
 
 #pragma once
 
@@ -39,8 +39,8 @@ private:
     std::vector<IOService> _ioServices;
     std::vector<WorkPtr> _works;
     std::vector<std::thread> _threads;
-    std::size_t _nextIOServiceIndex;
-
+    // std::size_t _nextIOServiceIndex;
+    std::atomic<std::size_t> _nextIOServiceIndex;
 };
 
 #endif 

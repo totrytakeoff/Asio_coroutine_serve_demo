@@ -6,29 +6,32 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <iostream>
 #include "LogicSystem.h"
+
+// 严重程度：MEDIUM
+// 问题描述：构造函数中直接生成UUID，没有错误处理
+// 优化建议：添加UUID生成失败的处理逻辑
 CSession::CSession(boost::asio::io_context& ioc, CService* service)
         : _ioc(ioc), _service(service), _socket(ioc), _b_closed(false) {
-    // 生成一个唯一的会话ID
-    // 使用UUID生成器生成一个随机的UUID
     auto uuid = boost::uuids::random_generator()();
     _sessionId = boost::uuids::to_string(uuid);
-
-    // 初始化接收数据头节点
     _recv_header_node = std::make_shared<MsgNode>(HEADER_LENGTH);
 }
 
-
+// 严重程度：HIGH
+// 问题描述：析构函数中的异常处理可能导致资源泄漏
+// 优化建议：确保所有资源在异常情况下也能正确释放
 CSession::~CSession() {
     try {
         std::cout << "CSession::~CSession()" << std::endl;
         Close();
-
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
 }
 
-
+// 严重程度：CRITICAL
+// 问题描述：使用detached协程可能导致资源泄漏，异常处理不完整
+// 优化建议：使用完成处理器替代detached，完善异常处理
 void CSession::Start() {
     auto self = shared_from_this();
     boost::asio::co_spawn(
@@ -103,6 +106,9 @@ void CSession::Start() {
             boost::asio::detached);
 }
 
+// 严重程度：CRITICAL
+// 问题描述：关闭操作不是线程安全的，可能导致竞态条件
+// 优化建议：添加互斥锁保护关闭操作
 void CSession::Close() {
     _socket.close();
     _b_closed = true;
@@ -112,6 +118,9 @@ void CSession::Close() {
 
 void CSession::Send(const std::string& msg, short msgId) { Send(msg.c_str(), msg.length(), msgId); }
 
+// 严重程度：HIGH
+// 问题描述：发送队列满时直接丢弃消息，没有错误处理
+// 优化建议：添加消息大小限制，实现消息丢弃策略
 void CSession::Send(const char* msg, short len, short msgId) {
     std::unique_lock<std::mutex> lock(_send_mutex);
     int que_size = _send_que.size();
@@ -139,6 +148,9 @@ void CSession::Send(const char* msg, short len, short msgId) {
             });
 }
 
+// 严重程度：HIGH
+// 问题描述：发送处理中的异常可能导致消息丢失
+// 优化建议：完善异常处理，确保消息可靠性
 void CSession::HandleSend(const boost::system::error_code& ec, std::size_t bytes_transferred,
                           std::shared_ptr<CSession> self) {
     try {
